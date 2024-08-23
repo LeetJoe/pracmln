@@ -30,8 +30,8 @@ import sys
 import ntpath
 import traceback
 from tkinter import Frame, BOTH, Label, Button, OptionMenu, IntVar, Checkbutton, \
-    W, E, Entry, messagebox, END, DISABLED, NORMAL, Tk
-from tkinter.filedialog import askopenfilename, asksaveasfilename, StringVar
+    W, E, Entry, messagebox, END, DISABLED, NORMAL, Tk, StringVar
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 from dnutils import logs, ifnone, out
 
