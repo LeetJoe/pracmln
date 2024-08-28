@@ -50,18 +50,19 @@ def test_inference_taxonomies():
 
 def test_learning_smokers():
     p = os.path.join(locs.examples, 'smokers', 'smokers.pracmln')
+    #  mlnpath， 文件路径:模型名.mln，
     mln = MLN(mlnfile=('%s:smoking.mln' % p), grammar='StandardGrammar')
-    mln.write()  # print predicates & formulas
-    # todo mln 是如何组织的？ .pracmln 文件里的内容是什么？
+    # mln.write()  # print predicates & formulas
     db = Database(mln, dbfile='%s:smoking-train.db' % p)
     for method in ('BPLL', 'BPLL_CG', 'CLL'):
-        for multicore in (True, False):
-            print('=== LEARNING TEST:', method, '===')
-            learn(method=method,
-                  mln=mln,
-                  db=db,
-                  verbose=True,
-                  multicore=multicore).run()
+        # for multicore in (True, False):
+        print('=== LEARNING TEST:', method, '===')
+        multicore = False
+        learn(method=method,
+              mln=mln,
+              db=db,
+              verbose=True,
+              multicore=multicore).run()
         break
 
 
@@ -71,23 +72,24 @@ def test_learning_taxonomies():
     mln.write()
     dbs = Database.load(mln, dbfiles='%s:training.db' % p)
     for method in ('DPLL', 'DBPLL_CG', 'DCLL'):
-        for multicore in (True, False):
-            print('=== LEARNING TEST:', method, '===')
-            learn(method=method,
-                  mln=mln,
-                  db=dbs,
-                  verbose=True,
-                  multicore=multicore,
-                  epreds='is_a',
-                  discr_preds=EVIDENCE_PREDS).run()
+        #  for multicore in (True, False):
+        print('=== LEARNING TEST:', method, '===')
+        multicore = True
+        learn(method=method,
+              mln=mln,
+              db=dbs,
+              verbose=True,
+              multicore=multicore,
+              epreds='is_a',
+              discr_preds=EVIDENCE_PREDS).run()
 
 
 def runall():
     start = time.time()
     # test_inference_smokers()
     # test_inference_taxonomies()
-    test_learning_smokers()
-    # test_learning_taxonomies()
+    # test_learning_smokers()
+    test_learning_taxonomies()
     print()
     print('all test finished after', time.time() - start, 'secs')
 
