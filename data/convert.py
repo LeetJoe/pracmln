@@ -28,9 +28,9 @@ def load(file, pred_num):
     for line in fi:
         line = line.strip()
         linelist = line.split('\t')
-        sub = 'ent_' + num2letter(linelist[0])
+        sub = 'Ent_' + num2letter(linelist[0])
         pred = 'pred_' + num2letter(linelist[1])
-        obj = 'ent_' + num2letter(linelist[2])
+        obj = 'Ent_' + num2letter(linelist[2])
 
         pred_inv = 'pred_' + num2letter(int(linelist[1]) + int(pred_num))
 

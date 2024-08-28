@@ -295,9 +295,9 @@ def convert(data):
     """
     if isinstance(data, str):
         return str(data)
-    elif isinstance(data, collections.Mapping):
+    elif isinstance(data, collections.abc.Mapping):
         return dict(list(map(convert, iter(data.items()))))
-    elif isinstance(data, collections.Iterable):
+    elif isinstance(data, collections.abc.Iterable):
         return type(data)(list(map(convert, data)))
     else:
         return data
@@ -470,10 +470,12 @@ class mlnpath(object):
         """
         path = self.resolve_path()
         if self.project is not None:
+            #  MLNProject
             proj = MLNProject.open(os.path.join(self.resolve_path(), self.project))
             if self.file is None:
                 return proj
             fileext = self.file.split('.')[-1]
+            # print(fileext)  # mln/db
             if fileext == 'mln':
                 mln = proj.mlns.get(self.file)
                 if mln is None: raise Exception('Project %s does not contain and MLN named %s' % (self.project, self.file))
