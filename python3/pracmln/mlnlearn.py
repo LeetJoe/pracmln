@@ -401,7 +401,7 @@ class MLNLearn(object):
         logger.level = eval('logs.%s' % params.get('debug', 'WARNING').upper())
         mlnlearnt = None
         try:
-            # run the learner
+            # run the learner, most expensive part
             mlnlearnt = mln.learn(dbs, self.method, **params)
             if self.verbose:
                 print()
