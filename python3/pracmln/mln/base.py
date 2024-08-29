@@ -28,7 +28,7 @@ from dnutils import logs, ifnone, out
 
 from ..logic import FirstOrderLogic, FuzzyLogic
 
-import platform
+import platform,json
 from .mrf import MRF
 from .errors import MLNParsingError
 from pyparsing import ParseException
@@ -76,14 +76,17 @@ class MLN(object):
     def __init__(self, logic='FirstOrderLogic', grammar='PRACGrammar', mlnfile=None):
         # instantiate the logic and grammar
         logic_str = '%s("%s", self)' % (logic, grammar)
+        #  logic_str 是一行 python 代码，eval() 可以执行一行代码然后把结果返回给 self.logic
         self.logic = eval(logic_str)
+        #  print(type(self.logic))
         logger.debug('Creating MLN with %s syntax and %s semantics' % (grammar, logic))
-        self._predicates = {} # maps from predicate name to the predicate instance
-        self.domains = {}    # maps from domain names to list of values
-        self._formulas = []   # list of MLNFormula instances
-        self.domain_decls = []
-        self.weights = []
-        self.fixweights = []
+        self._predicates = {}  # maps from predicate name to the predicate instance，类定义为 pracmln.mln.mlnpreds.Predicate
+        self.domains = {}   # maps from domain names to list of values 所谓的 domain（域） 实际上就是定义（类型）空间，
+                            # 比如实体的类型有['演员','电影','导演']，这个就是 KG 的 domains。
+        self._formulas = []   # list of MLNFormula instances, 类定义为 pracmln.logic.fol.FirstOrderLogic.Implication
+        self.domain_decls = []  ## ?
+        self.weights = []  # 权重，初始为 0
+        self.fixweights = []  # 固定权重 True/False
         self.vars = {}
         self._unique_templvars = []
         self._probreqs = []
@@ -92,6 +95,7 @@ class MLN(object):
         if mlnfile is not None:
             MLN.load(mlnfile, logic=logic, grammar=grammar, mln=self)
             return
+
         self.closedWorldPreds = []
         self.formulaGroups = []
         self.templateIdx2GroupIdx = {}
@@ -517,7 +521,8 @@ class MLN(object):
                 yield "%-10.6f\t%s" % (f.weight, fstr(f))
             else:
                 yield "%s\t%s" % (str(f.weight), fstr(f))
-        
+
+
     @staticmethod
     def load(files, logic='FirstOrderLogic', grammar='PRACGrammar', mln=None):
         '''
@@ -537,6 +542,7 @@ class MLN(object):
             for f in files:
                 if isinstance(f, str):
                     p = mlnpath(f)
+                    #  print(p.content), 输入加载的内容，Evidence、Query，Rules
                     if p.project is not None: 
                         projectpath = p.projectloc
                     text += p.content
@@ -544,6 +550,7 @@ class MLN(object):
                     text += f.content
                 else: raise Exception('Unexpected file specification: %s' % str(f))
             dirs = [os.path.dirname(fn) for fn in files]
+            # print(mln)  # MLN self
             return parse_mln(text, searchpaths=dirs, projectpath=projectpath, logic=logic, grammar=grammar, mln=mln)
         raise Exception('No mln files given.')
 
@@ -687,7 +694,7 @@ def parse_mln(text, searchpaths=['.'], projectpath=None, logic='FirstOrderLogic'
                 if m is None:
                     raise MLNParsingError("Variable assigment malformed: %s" % line)
                 mln.vars[m.group(1)] = "%s" % m.group(2).strip()
-                continue                        
+                continue
             # predicate decl or formula with weight
             else:
                 isHard = False

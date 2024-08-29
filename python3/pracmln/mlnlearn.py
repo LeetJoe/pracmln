@@ -29,6 +29,7 @@ import argparse
 import fnmatch
 import io
 import pstats
+import sys
 import tkinter.messagebox
 import traceback
 from cProfile import Profile
@@ -361,7 +362,7 @@ class MLNLearn(object):
         if self.verbose:
             print(('loaded %d database(s).' % len(dbs)))
 
-        watch = StopWatch()
+        watch = StopWatch()  # 一个计时器
 
         if self.verbose:
             confg = dict(self._config)
@@ -375,14 +376,14 @@ class MLNLearn(object):
         params = dict([(k, getattr(self, k)) for k in (
             'multicore', 'verbose', 'profile', 'ignore_zero_weight_formulas')])
 
-        # for discriminative learning
+        # for discriminative learning todo method 初传化 learner 的时候传的是串，什么时候变成对象的？
         if issubclass(self.method, DiscriminativeLearner):
             if self.discr_preds == QUERY_PREDS:  # use query preds
                 params['qpreds'] = self.qpreds
             elif self.discr_preds == EVIDENCE_PREDS:  # use evidence preds
                 params['epreds'] = self.epreds
 
-        # gaussian prior settings            
+        # gaussian prior settings todo 如果使用先验
         if self.use_prior:
             params['prior_mean'] = self.prior_mean
             params['prior_stdev'] = self.prior_stdev

@@ -74,9 +74,9 @@ def load_rules(file):
     return formulas
 
 
-predicates, train = load('icews14/train.del', 230)
+predicates, train = load('icews14/origin/train.del', 230)
 
-preds, test = load('icews14/test.del', 230)
+preds, test = load('icews14/origin/test.del', 230)
 
 for pred in preds:
     if pred not in predicates:
@@ -86,9 +86,9 @@ for i in range(len(predicates)):
     predicates[i] = predicates[i] + '(entity, entity)'
 
 
-formulas = load_rules('icews14/tlogic_rules.json')
+formulas = load_rules('icews14/origin/tlogic_rules.json')
 
-fo = open('icews14/icews14.mln', 'w')
+fo = open('icews14/mlns/icews14.mln', 'w')
 fo.write('//Predicates\n')
 for pred in predicates:
     fo.write(pred + '\n')
@@ -98,13 +98,13 @@ for formula in formulas:
 
 fo.close()
 
-fo = open('icews14/icews14_train.db', 'w')
+fo = open('icews14/dbs/icews14_train.db', 'w')
 for evid in train:
     fo.write(evid + '\n')
 
 fo.close()
 
-fo = open('icews14/icews14_test.db', 'w')
+fo = open('icews14/dbs/icews14_test.db', 'w')
 for evid in test:
     fo.write(evid + '\n')
 

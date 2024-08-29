@@ -84,12 +84,31 @@ def test_learning_taxonomies():
               discr_preds=EVIDENCE_PREDS).run()
 
 
+def test_learning_icews14():
+    p = os.path.join(locs.examples, 'icews14', 'icews14.pracmln')
+    mln = MLN(mlnfile=('%s:icews14.mln' % p), grammar='StandardGrammar')
+    # mln.write()
+    db = Database.load(mln, dbfiles='%s:icews14_train.db' % p)
+    #  for method in ('BPLL', 'BPLL_CG', 'CLL'):
+    method = 'BPLL'
+    print('=== LEARNING TEST:', method, '===')
+    multicore = True
+    learn(method=method,
+          mln=mln,
+          db=db,
+          verbose=True,
+          multicore=multicore).run()
+
+
+
 def runall():
     start = time.time()
     # test_inference_smokers()
     # test_inference_taxonomies()
     # test_learning_smokers()
-    test_learning_taxonomies()
+    # test_learning_taxonomies()
+
+    test_learning_icews14()
     print()
     print('all test finished after', time.time() - start, 'secs')
 
