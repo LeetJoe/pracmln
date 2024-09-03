@@ -51,27 +51,42 @@ def load_rules(file):
     formulas = []
     for hr in tlogc_rules:
         for rule in tlogc_rules[hr]:
-            i = 0
-            formula = ''
-            sub0 = ''
-            obj0 = ''
-            for rel in rule['body_rels']:
-                pred = 'pred_' + num2letter(rel)
-                sub = 'var_' + letter_dict[i]
-                i += 1
-                obj = 'var_' + letter_dict[i]
-                if formula != '':
-                    formula += '^'
-                else:
-                    sub0 = sub
-                formula += pred + '(' + sub + ', ' + obj + ')'
-                obj0 = obj
-
-            pred = 'pred_' + num2letter(rule['head_rel'])
-            formula += '=>' + pred + '(' + sub0 + ', ' + obj0 + ')'
-            formulas.append([rule['conf'], formula])
+            formula_str = rule2formula(rule)
+            formulas.append([rule['conf'], formula_str])
 
     return formulas
+
+
+def load_learnt_rules(file):
+    weighted_rules = json.load(open(file, 'r'))
+    formulas = []
+    for rule in weighted_rules:
+        formula_str = rule2formula(rule)
+        formulas.append([rule['conf'], formula_str])
+
+    return formulas
+
+
+def rule2formula(rule):
+    i = 0
+    formula = ''
+    sub0 = ''
+    obj0 = ''
+    for rel in rule['body_rels']:
+        pred = 'pred_' + num2letter(rel)
+        sub = 'var_' + letter_dict[i]
+        i += 1
+        obj = 'var_' + letter_dict[i]
+        if formula != '':
+            formula += '^'
+        else:
+            sub0 = sub
+        formula += pred + '(' + sub + ', ' + obj + ')'
+        obj0 = obj
+
+    pred = 'pred_' + num2letter(rule['head_rel'])
+    formula += '=>' + pred + '(' + sub0 + ', ' + obj0 + ')'
+    return formula
 
 
 predicates, train = load('icews14/origin/train.del', 230)
@@ -85,7 +100,7 @@ for pred in preds:
 for i in range(len(predicates)):
     predicates[i] = predicates[i] + '(entity, entity)'
 
-
+# mln with unlearnt weight
 formulas = load_rules('icews14/origin/tlogic_rules.json')
 
 fo = open('icews14/mlns/icews14.mln', 'w')
@@ -98,12 +113,27 @@ for formula in formulas:
 
 fo.close()
 
+# mln with learnt weight from MLN from tLogicNet
+formulas = load_learnt_rules('icews14/rule.txt_0.85_1000_0.03_f2.formula')
+
+fo = open('icews14/mlns/learnt.tlogicnet.train.icews14.mln', 'w')
+fo.write('//Predicates\n')
+for pred in predicates:
+    fo.write(pred + '\n')
+fo.write('\n//Formulas\n')
+for formula in formulas:
+    fo.write(str(formula[0]) + ' ' + formula[1] + '\n')
+
+fo.close()
+
+# train data
 fo = open('icews14/dbs/icews14_train.db', 'w')
 for evid in train:
     fo.write(evid + '\n')
 
 fo.close()
 
+# test data
 fo = open('icews14/dbs/icews14_test.db', 'w')
 for evid in test:
     fo.write(evid + '\n')
